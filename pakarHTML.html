@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="pakarCSS.css">
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <div class="app-wrapper">
+
+        <header>
+            <div class="header-badge">⬡ SISTEM PAKAR — FORWARD CHAINING · CERTAINTY FACTOR ⬡</div>
+            <h1>SISTEM PAKAR ANALISIS POLUSI CAHAYA</h1>
+            <p class="header-sub">SISTEM PAKAR · PENGUKUR TINGKAT POLUSI CAHAYA · v1.0</p>
+            <div class="header-line"></div>
+        </header>
+
+        <div class="main-grid">
+
+            <!-- LEFT: INPUT -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon">⚡</div>
+                    <span class="panel-title">Basis Fakta (Fact Base)</span>
+                </div>
+                <div class="panel-body">
+
+                    <div class="fact-block">
+                        <div class="fact-label">1. Nilai Bortle Scale<span class="fact-code">INT [1–9]</span></div>
+                        <select id="f-bortle">
+                            <option value="">-- Pilih nilai --</option>
+                            <option value="1">1 — Langit Gelap Sempurna</option>
+                            <option value="2">2 — Langit Gelap Sejati</option>
+                            <option value="3">3 — Langit Pedesaan</option>
+                            <option value="4">4 — Pedesaan / Pinggiran</option>
+                            <option value="5">5 — Pinggiran Kota</option>
+                            <option value="6">6 — Kota Kecil / Pinggiran</option>
+                            <option value="7">7 — Pinggiran Kota Besar</option>
+                            <option value="8">8 — Kota / Urban</option>
+                            <option value="9">9 — Pusat Kota Besar</option>
+                        </select>
+                    </div>
+
+                    <div class="fact-block">
+                        <div class="fact-label">2. Tipe Kawasan<span class="fact-code">ENUM</span></div>
+                        <select id="f-kawasan">
+                            <option value="">-- Pilih tipe --</option>
+                            <option value="rural">Pedesaan (Rural)</option>
+                            <option value="suburban">Pinggiran Kota (Suburban)</option>
+                            <option value="urban">Perkotaan (Urban)</option>
+                            <option value="pusat_kota">Pusat Kota (City Center)</option>
+                        </select>
+                    </div>
+
+                    <div class="fact-block">
+                        <div class="fact-label">3. Sumber Cahaya Dominan<span class="fact-code">ENUM</span></div>
+                        <select id="f-sumber">
+                            <option value="">-- Pilih jenis --</option>
+                            <option value="LED">LED (Light Emitting Diode)</option>
+                            <option value="sodium">Sodium Bertekanan Tinggi (HPS)</option>
+                            <option value="merkuri">Merkuri / Metal Halida</option>
+                            <option value="campuran">Campuran / Tidak Dominan</option>
+                            <option value="minim">Minim Lampu Buatan</option>
+                        </select>
+                    </div>
+
+                    <div class="fact-block">
+                        <div class="fact-label">4. Kondisi Cuaca<span class="fact-code">ENUM</span></div>
+                        <select id="f-cuaca">
+                            <option value="">-- Pilih kondisi --</option>
+                            <option value="cerah">Cerah (Clear)</option>
+                            <option value="berkabut">Berkabut (Foggy / Hazy)</option>
+                            <option value="berawan_tipis">Berawan Tipis (Partly Cloudy)</option>
+                            <option value="mendung">Mendung (Overcast)</option>
+                        </select>
+                    </div>
+
+                    <div class="fact-block">
+                        <div class="fact-label">5. Visibilitas Bintang<span class="fact-code">ENUM</span></div>
+                        <select id="f-visib">
+                            <option value="">-- Pilih visibilitas --</option>
+                            <option value="sangat_banyak">Sangat Banyak (&gt;3000 bintang)</option>
+                            <option value="banyak">Banyak (500–3000 bintang)</option>
+                            <option value="sedang">Sedang (50–500 bintang)</option>
+                            <option value="sedikit">Sedikit (&lt;50 bintang)</option>
+                            <option value="tidak_ada">Tidak Terlihat</option>
+                        </select>
+                    </div>
+
+                    <div class="fact-block">
+                        <div class="fact-label">6. Waktu Pengukuran<span class="fact-code">ENUM</span></div>
+                        <select id="f-waktu">
+                            <option value="">-- Pilih waktu --</option>
+                            <option value="malam_awal">Malam Awal (19:00–22:00)</option>
+                            <option value="tengah_malam">Tengah Malam (22:00–01:00)</option>
+                            <option value="dini_hari">Dini Hari (01:00–05:00)</option>
+                        </select>
+                    </div>
+
+                    <button class="run-btn" id="run-btn" onclick="runInference()"><span>▶ JALANKAN INFERENSI</span></button>
+                    <button class="reset-btn" onclick="resetAll()">⟳ RESET SEMUA FAKTA</button>
+
+                    <div class="kb-stats">
+                        <div class="kb-stat"><div class="kb-stat-num">22</div><div class="kb-stat-label">Total Rules</div></div>
+                        <div class="kb-stat"><div class="kb-stat-num">6</div><div class="kb-stat-label">Input Facts</div></div>
+                        <div class="kb-stat"><div class="kb-stat-num">5</div><div class="kb-stat-label">Conclusions</div></div>
+                        <div class="kb-stat"><div class="kb-stat-num" style="font-size:14px;padding-top:2px;">CF</div><div class="kb-stat-label">Method</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right-col">
+
+            <!-- LOG -->
+            <div class="panel" style="position:relative;">
+                <div class="panel-header">
+                    <div class="panel-icon">⚙</div>
+                    <span class="panel-title">Inference Engine Log</span>
+                </div>
+                <div class="panel-body" style="padding-bottom:12px;">
+                    <div class="log-area" id="log-area">
+                        <span class="log-idle">Menunggu input fakta dan eksekusi inferensi...</span>
+                    </div>
+                    <div class="rule-stats-bar" id="rule-stats-bar">
+                        <div class="rst">Diperiksa: <span id="s-checked">0</span></div>
+                        <div class="rst">Terpicu: <span id="s-fired">0</span></div>
+                        <div class="rst">Fakta Baru: <span id="s-newfacts">0</span></div>
+                        <div class="rst">Iterasi: <span id="s-iter">0</span></div>
+                    </div>
+                </div>
+                <div class="scan-overlay" id="scan-overlay"><div class="scan-beam"></div></div>
+            </div>
+
+            <!-- OUTPUT IDLE -->
+            <div id="output-idle" class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon">◎</div>
+                    <span class="panel-title">Variabel Consequent (Output)</span>
+                </div>
+                <div class="panel-body">
+                    <div class="output-idle">
+                        <div class="idle-icon">◎</div>
+                        <span>SISTEM MENUNGGU EKSEKUSI</span>
+                        <span style="font-size:10px;letter-spacing:1px;color:var(--text-dim)">Lengkapi fakta dan tekan JALANKAN INFERENSI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT RESULTS -->
+            <div id="output-result" style="display:none;">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-icon">◎</div>
+                        <span class="panel-title">Variabel Consequent (Output)</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="output-grid">
+
+                        <div class="diag-card">
+                            <div class="diag-title"><div class="d-icon">◉</div>Klasifikasi Zona Polusi</div>
+                            <div class="zone-display">
+                                <div class="zone-badge" id="zone-badge">–</div>
+                                <div>
+                                    <div class="zone-info-main" id="zone-main">—</div>
+                                    <div class="zone-info-sub" id="zone-sub">Belum dianalisa</div>
+                                    <div class="cf-section">
+                                        <div class="cf-label">CERTAINTY FACTOR</div>
+                                        <div class="cf-track"><div class="cf-fill" id="cf-fill" style="width:0%"></div></div>
+                                        <div class="cf-txt" id="cf-txt">CF = 0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="diag-card">
+                            <div class="diag-title"><div class="d-icon">⊛</div>Diagnosis Penyebab Utama</div>
+                            <ul class="cause-list" id="cause-list"><li class="cause-empty">Belum dianalisa</li></ul>
+                            <div class="amp-warning" id="amp-warning">Amplifikasi terdeteksi: kondisi cuaca memperkuat polusi cahaya secara signifikan.</div>
+                        </div>
+
+                        <div class="diag-card">
+                            <div class="diag-title"><div class="d-icon">✦</div>Kelayakan Observasi Astronomi</div>
+                            <div class="status-row" id="astro-status"><span class="cause-empty">Belum dianalisa</span></div>
+                        </div>
+
+                        <div class="diag-card">
+                            <div class="diag-title"><div class="d-icon">⬡</div>Risiko Dampak Ekologis</div>
+                            <div class="status-row" id="eco-status"><span class="cause-empty">Belum dianalisa</span></div>
+                        </div>
+
+                        <div class="reco-card">
+                            <div class="diag-title"><div class="d-icon">→</div>Rekomendasi Tindakan</div>
+                            <div class="reco-grid" id="reco-list"></div>
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+
+        <!-- INFO BAR -->
+        <div class="info-bar">
+            <div class="info-card">
+                <div class="info-card-label">Rules Terpicu</div>
+                <div class="info-card-value" id="info-fired">—</div>
+                <div class="info-card-sub">dari 22 total rules</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Metode Inferensi</div>
+                <div class="info-card-value" style="font-size:13px;letter-spacing:1px;">FORWARD CHAIN</div>
+                <div class="info-card-sub">Multi-iterasi · AND = MIN</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Ukuran Keyakinan</div>
+                <div class="info-card-value" style="font-size:13px;letter-spacing:1px;">CERT. FACTOR</div>
+                <div class="info-card-sub">CF 0.00 – 1.00</div>
+            </div>
+        </div>
+
+        <div class="footer">[ SISTEM PAKAR · POLUSI CAHAYA ] &nbsp;|&nbsp; FORWARD CHAINING ENGINE &nbsp;|&nbsp; 6 FACTS · 22 RULES · 5 CONSEQUENTS</div>
+    </div>
+
+    <script src="pakarJS.js"></script>
+</body>
+</html>
